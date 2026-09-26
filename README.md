@@ -1,4 +1,4 @@
-# ⚡ GrowthForge - Production Habit & Skill Tracker
+#  GrowthForge - Production Habit & Skill Tracker
 
 [![Tests](https://img.shields.io/badge/pytest-15%20passed-brightgreen.svg)]()
 [![Android SDK](https://img.shields.io/badge/Android%20Target%20SDK-34%20%7C%2035-blue.svg)]()
@@ -8,7 +8,7 @@
 
 ---
 
-## 📱 Features
+##  Features
 
 - **Daily Quests & Prioritization**: High, medium, and low priority daily task management with celebratory confetti upon 100% daily completion.
 - **Dynamic Skill Trees**: Hierarchical discipline tracking (categories -> modules -> metric logs) with custom color themes (Cyan, Gold, Emerald, Violet).
@@ -22,7 +22,7 @@
 
 ---
 
-## 🛠️ Project Structure
+##  Project Structure
 
 ```
 growthforge-app/
@@ -55,7 +55,7 @@ growthforge-app/
 
 ---
 
-## 🚀 Quickstart (Local Development)
+##  Quickstart (Local Development)
 
 ### 1. Install Dependencies
 ```bash
@@ -76,7 +76,7 @@ Open [http://localhost:5000](http://localhost:5000) in your browser.
 
 ---
 
-## 🧪 Running Automated Tests
+##  Running Automated Tests
 
 Run the complete test suite with `pytest`:
 ```bash
@@ -85,7 +85,7 @@ python -m pytest tests/ -v
 
 ---
 
-## 🐳 Running with Docker
+##  Running with Docker
 
 Spin up the entire production stack (Flask + PostgreSQL + Redis):
 ```bash
@@ -94,7 +94,7 @@ docker-compose up --build
 
 ---
 
-## 📲 Building for Google Play Store
+##  Building for Google Play Store
 
 See the dedicated [PLAYSTORE_GUIDE.md](file:///C:/Users/Nisha%20kumari/.gemini/antigravity/scratch/growthforge-app/PLAYSTORE_GUIDE.md) for full instructions:
 - **Cloud Build**: Push to GitHub and download the compiled `.aab` file from the **Actions** tab.
