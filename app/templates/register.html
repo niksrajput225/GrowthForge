@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Create Account - GrowthForge{% endblock %}
+
+{% block content %}
+<div class="auth-viewport">
+    <div class="auth-card">
+        <div class="auth-brand">
+            <div class="brand-logo">
+                <i class="fa-solid fa-sparkles"></i>
+            </div>
+            <h2>Begin Your Journey</h2>
+            <p>Create your GrowthForge profile and start earning mastery XP today.</p>
+        </div>
+
+        <form id="register-form" method="POST" action="/register" class="auth-form">
+            <div class="form-group">
+                <label for="username">Username</label>
+                <div class="input-with-icon">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" id="username" name="username" placeholder="Choose a username" required autofocus autocomplete="username">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Email (Optional)</label>
+                <div class="input-with-icon">
+                    <i class="fa-solid fa-envelope"></i>
+                    <input type="email" id="email" name="email" placeholder="name@example.com" autocomplete="email">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password (Min. 6 chars)</label>
+                <div class="input-with-icon">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="password" name="password" placeholder="Create a secure password" required autocomplete="new-password">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary w-100 auth-submit-btn">
+                <span>Start Forging</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Already have an account? <a href="/login">Sign In</a></p>
+            <div class="legal-mini-links">
+                By creating an account, you agree to our <a href="/privacy-policy">Privacy Policy</a> and <a href="/terms">Terms</a>.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    document.getElementById('register-form').addEventListener('submit', async () => {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        const email = document.getElementById('email').value.trim();
+        try {
+            const res = await fetch('/api/v1/auth/register', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password, email })
+            });
+            const data = await res.json();
+            if (data.success && data.access_token) {
+                localStorage.setItem('gf_access_token', data.access_token);
+                localStorage.setItem('gf_refresh_token', data.refresh_token);
+                localStorage.setItem('gf_user', JSON.stringify(data.user));
+            }
+        } catch (err) {
+            console.log('Token sync error:', err);
+        }
+    });
+</script>
+{% endblock %}

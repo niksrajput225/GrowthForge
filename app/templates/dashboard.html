@@ -1,0 +1,400 @@
+{% extends "base.html" %}
+
+{% block title %}GrowthForge - Daily Mastery{% endblock %}
+
+{% block content %}
+<div class="dashboard-wrapper">
+    <!-- Top Mobile Navigation / Header -->
+    <header class="mobile-header">
+        <div class="header-left">
+            <div class="avatar-ring" id="header-avatar-btn">
+                <img id="user-avatar-img" src="https://api.dicebear.com/7.x/bottts/svg?seed=growthforge" alt="User Avatar">
+            </div>
+            <div class="user-greeting">
+                <h1 id="user-display-name">Master Forger</h1>
+                <div class="user-rank">
+                    <span class="rank-badge" id="user-level-badge"><i class="fa-solid fa-bolt"></i> Level 1</span>
+                    <span class="xp-badge" id="user-xp-badge">100 XP</span>
+                </div>
+            </div>
+        </div>
+        <div class="header-right">
+            <div class="streak-pill" id="streak-indicator" title="Consecutive Active Days">
+                <i class="fa-solid fa-fire-flame-curved"></i>
+                <span id="streak-days">1</span>
+            </div>
+            <button class="icon-btn" id="open-settings-btn" title="Settings & Profile">
+                <i class="fa-solid fa-gear"></i>
+            </button>
+        </div>
+    </header>
+
+    <!-- Main Content Tabs Container -->
+    <div class="tabs-viewport">
+        
+        <!-- TAB 1: OVERVIEW & ANALYTICS -->
+        <section id="tab-overview" class="tab-pane active">
+            <!-- Hero Progress Card -->
+            <div class="growth-card hero-card">
+                <div class="hero-left">
+                    <span class="hero-label">TOTAL FORGE PROGRESS</span>
+                    <h2 class="hero-percentage" id="overall-progress-text">0%</h2>
+                    <p class="hero-subtitle" id="hero-motivational-quote">Level up today with your active milestones.</p>
+                </div>
+                <div class="hero-right">
+                    <div class="radial-gauge-container">
+                        <svg class="radial-svg" viewBox="0 0 100 100">
+                            <circle class="radial-bg" cx="50" cy="50" r="42" />
+                            <circle class="radial-fill" id="overall-progress-circle" cx="50" cy="50" r="42" stroke-dasharray="264" stroke-dashoffset="264" />
+                        </svg>
+                        <i class="fa-solid fa-trophy radial-icon"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Metric Quick-Glance Cards -->
+            <div class="metrics-grid">
+                <div class="metric-card cyan">
+                    <div class="metric-icon"><i class="fa-solid fa-list-check"></i></div>
+                    <div class="metric-info">
+                        <span class="metric-title">Today's Tasks</span>
+                        <div class="metric-val" id="daily-metric-val">0 / 0</div>
+                        <div class="progress-bar-sm"><div class="bar-fill" id="daily-bar-fill" style="width: 0%"></div></div>
+                    </div>
+                </div>
+                <div class="metric-card gold">
+                    <div class="metric-icon"><i class="fa-solid fa-calendar-check"></i></div>
+                    <div class="metric-info">
+                        <span class="metric-title">Weekly Goals</span>
+                        <div class="metric-val" id="weekly-metric-val">0 / 0</div>
+                        <div class="progress-bar-sm"><div class="bar-fill" id="weekly-bar-fill" style="width: 0%"></div></div>
+                    </div>
+                </div>
+                <div class="metric-card emerald">
+                    <div class="metric-icon"><i class="fa-solid fa-chart-line"></i></div>
+                    <div class="metric-info">
+                        <span class="metric-title">Skill Modules</span>
+                        <div class="metric-val" id="skills-metric-val">0 Active</div>
+                        <div class="progress-bar-sm"><div class="bar-fill" id="skills-bar-fill" style="width: 0%"></div></div>
+                    </div>
+                </div>
+                <div class="metric-card violet">
+                    <div class="metric-icon"><i class="fa-solid fa-bolt"></i></div>
+                    <div class="metric-info">
+                        <span class="metric-title">Next Level XP</span>
+                        <div class="metric-val" id="next-level-val">100 / 200</div>
+                        <div class="progress-bar-sm"><div class="bar-fill" id="xp-bar-fill" style="width: 50%"></div></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Priority Daily Preview -->
+            <div class="section-card">
+                <div class="section-header">
+                    <h3><i class="fa-solid fa-bullseye accent-cyan"></i> Critical Objectives</h3>
+                    <button class="link-btn" onclick="switchTab('tasks')">View All</button>
+                </div>
+                <div id="overview-tasks-preview" class="tasks-preview-list">
+                    <div class="skeleton-loader">Loading critical items...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 2: DAILY TASKS -->
+        <section id="tab-tasks" class="tab-pane">
+            <div class="tab-header-row">
+                <div>
+                    <h2>Today's Quests</h2>
+                    <p class="tab-sub">Earn +15 XP for every completed task</p>
+                </div>
+                <button class="primary-fab-btn" id="open-add-task-modal">
+                    <i class="fa-solid fa-plus"></i> New Task
+                </button>
+            </div>
+
+            <!-- Filter Chips -->
+            <div class="filter-chips">
+                <button class="chip active" data-filter="all">All</button>
+                <button class="chip" data-filter="pending">Pending</button>
+                <button class="chip" data-filter="high">High Priority</button>
+                <button class="chip" data-filter="completed">Completed</button>
+            </div>
+
+            <!-- Tasks List Container -->
+            <div class="items-list" id="daily-tasks-list">
+                <!-- Dynamically Rendered Tasks -->
+            </div>
+        </section>
+
+        <!-- TAB 3: WEEKLY GOALS -->
+        <section id="tab-weekly" class="tab-pane">
+            <div class="tab-header-row">
+                <div>
+                    <h2>Weekly Milestones</h2>
+                    <p class="tab-sub">Major growth targets (+30 XP each)</p>
+                </div>
+                <button class="primary-fab-btn gold-btn" id="open-add-weekly-modal">
+                    <i class="fa-solid fa-plus"></i> New Goal
+                </button>
+            </div>
+
+            <div class="items-list" id="weekly-tasks-list">
+                <!-- Dynamically Rendered Weekly Tasks -->
+            </div>
+        </section>
+
+        <!-- TAB 4: SKILLS & MASTERY -->
+        <section id="tab-skills" class="tab-pane">
+            <div class="tab-header-row">
+                <div>
+                    <h2>Skill Trees & Mastery</h2>
+                    <p class="tab-sub">Log measurable milestones & repetitions (+10 XP)</p>
+                </div>
+                <button class="primary-fab-btn cyan-btn" id="open-add-category-modal">
+                    <i class="fa-solid fa-folder-plus"></i> New Tree
+                </button>
+            </div>
+
+            <!-- Skill Categories Grid -->
+            <div class="skills-grid" id="skills-categories-container">
+                <!-- Dynamically Rendered Categories -->
+            </div>
+        </section>
+
+        <!-- TAB 5: QUICK NOTES -->
+        <section id="tab-notes" class="tab-pane">
+            <div class="tab-header-row">
+                <div>
+                    <h2>Field Notes & Journal</h2>
+                    <p class="tab-sub" id="notes-last-saved">Synced with cloud</p>
+                </div>
+                <button class="primary-fab-btn emerald-btn" id="save-note-btn">
+                    <i class="fa-solid fa-floppy-disk"></i> Save Note
+                </button>
+            </div>
+
+            <div class="notes-container">
+                <textarea id="quick-note-textarea" placeholder="Record insights, workout PRs, strategy ideas, and key thoughts here..."></textarea>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Mobile Bottom Navigation Bar -->
+    <nav class="bottom-nav">
+        <button class="nav-item active" data-tab="overview">
+            <i class="fa-solid fa-house"></i>
+            <span>Overview</span>
+        </button>
+        <button class="nav-item" data-tab="tasks">
+            <i class="fa-solid fa-check-double"></i>
+            <span>Tasks</span>
+        </button>
+        <button class="nav-item" data-tab="weekly">
+            <i class="fa-solid fa-calendar-days"></i>
+            <span>Weekly</span>
+        </button>
+        <button class="nav-item" data-tab="skills">
+            <i class="fa-solid fa-trophy"></i>
+            <span>Skills</span>
+        </button>
+        <button class="nav-item" data-tab="notes">
+            <i class="fa-solid fa-book-bookmark"></i>
+            <span>Notes</span>
+        </button>
+    </nav>
+</div>
+
+<!-- ================= MODALS ================= -->
+
+<!-- Add Task Modal -->
+<div class="modal-overlay hidden" id="task-modal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-plus-circle accent-cyan"></i> Create Daily Task</h3>
+            <button class="close-modal-btn" onclick="closeModal('task-modal')">&times;</button>
+        </div>
+        <form id="create-task-form">
+            <div class="form-group">
+                <label>Task Title</label>
+                <input type="text" id="task-input-title" placeholder="e.g. Read 20 pages of architecture guide" required autofocus>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Priority</label>
+                    <select id="task-input-priority">
+                        <option value="high">High Priority</option>
+                        <option value="medium" selected>Medium Priority</option>
+                        <option value="low">Low Priority</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Category Tag</label>
+                    <input type="text" id="task-input-category" placeholder="e.g. Learning, Work, Health">
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeModal('task-modal')">Cancel</button>
+                <button type="submit" class="btn-primary">Create Task</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add Weekly Goal Modal -->
+<div class="modal-overlay hidden" id="weekly-modal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-flag accent-gold"></i> Create Weekly Goal</h3>
+            <button class="close-modal-btn" onclick="closeModal('weekly-modal')">&times;</button>
+        </div>
+        <form id="create-weekly-form">
+            <div class="form-group">
+                <label>Weekly Objective</label>
+                <input type="text" id="weekly-input-title" placeholder="e.g. Ship Android release build to Google Play Console" required>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeModal('weekly-modal')">Cancel</button>
+                <button type="submit" class="btn-primary gold-btn">Set Milestone</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add Skill Category Modal -->
+<div class="modal-overlay hidden" id="category-modal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-layer-group accent-cyan"></i> New Skill Tree</h3>
+            <button class="close-modal-btn" onclick="closeModal('category-modal')">&times;</button>
+        </div>
+        <form id="create-category-form">
+            <div class="form-group">
+                <label>Category Name</label>
+                <input type="text" id="cat-input-name" placeholder="e.g. System Design, Martial Arts, Spanish" required>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Theme Color</label>
+                    <select id="cat-input-color">
+                        <option value="cyan">Electric Cyan</option>
+                        <option value="gold">Champion Gold</option>
+                        <option value="emerald">Neon Emerald</option>
+                        <option value="violet">Cyber Violet</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Icon</label>
+                    <select id="cat-input-icon">
+                        <option value="fa-code">Code / Tech</option>
+                        <option value="fa-dumbbell">Fitness / Gym</option>
+                        <option value="fa-brain">Brain / Strategy</option>
+                        <option value="fa-language">Language</option>
+                        <option value="fa-chart-pie">Finance</option>
+                        <option value="fa-star">General Star</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeModal('category-modal')">Cancel</button>
+                <button type="submit" class="btn-primary">Create Tree</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add Skill Module Modal -->
+<div class="modal-overlay hidden" id="module-modal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-cube accent-cyan"></i> Add Skill Module</h3>
+            <button class="close-modal-btn" onclick="closeModal('module-modal')">&times;</button>
+        </div>
+        <form id="create-module-form">
+            <input type="hidden" id="module-category-id">
+            <div class="form-group">
+                <label>Module Title</label>
+                <input type="text" id="module-input-title" placeholder="e.g. Push Day Chest, Docker Containerization" required>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeModal('module-modal')">Cancel</button>
+                <button type="submit" class="btn-primary">Add Module</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Add Metric Log Modal -->
+<div class="modal-overlay hidden" id="log-modal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-chart-simple accent-emerald"></i> Log Metric & Reps</h3>
+            <button class="close-modal-btn" onclick="closeModal('log-modal')">&times;</button>
+        </div>
+        <form id="create-log-form">
+            <input type="hidden" id="log-module-id">
+            <div class="form-group">
+                <label>Exercise / Milestone Name</label>
+                <input type="text" id="log-input-name" placeholder="e.g. Incline Dumbbell Press, Kubernetes Cluster" required>
+            </div>
+            <div class="form-group">
+                <label>Metric Achieved</label>
+                <input type="text" id="log-input-metric" placeholder="e.g. 28 kg x 8 reps, Configured Ingress" required>
+            </div>
+            <div class="modal-actions">
+                <button type="button" class="btn-secondary" onclick="closeModal('log-modal')">Cancel</button>
+                <button type="submit" class="btn-primary emerald-btn">Log & Earn XP</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Profile & Settings Modal -->
+<div class="modal-overlay hidden" id="settings-modal">
+    <div class="modal-card">
+        <div class="modal-header">
+            <h3><i class="fa-solid fa-sliders accent-cyan"></i> Profile & Settings</h3>
+            <button class="close-modal-btn" onclick="closeModal('settings-modal')">&times;</button>
+        </div>
+        <div class="profile-settings-body">
+            <div class="profile-header-card">
+                <img id="settings-avatar-img" src="https://api.dicebear.com/7.x/bottts/svg?seed=growthforge" alt="User Avatar">
+                <div class="profile-meta">
+                    <h4 id="settings-username">Forger</h4>
+                    <p id="settings-level-label">Level 1 Champion</p>
+                </div>
+            </div>
+
+            <!-- Avatar Uploader -->
+            <div class="avatar-upload-box">
+                <label for="avatar-file-input" class="file-upload-label">
+                    <i class="fa-solid fa-camera"></i> Change Avatar Image
+                </label>
+                <input type="file" id="avatar-file-input" accept="image/png,image/jpeg,image/webp" style="display:none;">
+            </div>
+
+            <!-- App Links & Compliance -->
+            <div class="settings-nav-group">
+                <a href="/privacy-policy" target="_blank" class="settings-link-row">
+                    <span><i class="fa-solid fa-shield-halved"></i> Privacy Policy (Google Play)</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
+                <a href="/terms" target="_blank" class="settings-link-row">
+                    <span><i class="fa-solid fa-file-contract"></i> Terms of Service</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
+                <a href="/account/delete" target="_blank" class="settings-link-row danger">
+                    <span><i class="fa-solid fa-trash-can"></i> Request Account & Data Deletion</span>
+                    <i class="fa-solid fa-chevron-right"></i>
+                </a>
+            </div>
+
+            <div class="settings-actions">
+                <a href="/logout" class="btn-secondary w-100" id="logout-btn">
+                    <i class="fa-solid fa-right-from-bracket"></i> Sign Out
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

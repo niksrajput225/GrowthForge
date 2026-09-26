@@ -1,0 +1,23 @@
+{
+  "appId": "com.growthforge.tracker",
+  "appName": "GrowthForge",
+  "webDir": "app/static",
+  "bundledWebRuntime": false,
+  "server": {
+    "androidScheme": "https",
+    "cleartext": false
+  },
+  "plugins": {
+    "SplashScreen": {
+      "launchShowDuration": 1500,
+      "launchAutoHide": true,
+      "backgroundColor": "#080c14",
+      "androidSplashResourceName": "splash",
+      "androidScaleType": "CENTER_CROP"
+    },
+    "StatusBar": {
+      "style": "DARK",
+      "backgroundColor": "#080c14"
+    }
+  }
+}

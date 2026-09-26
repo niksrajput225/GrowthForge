@@ -1,0 +1,51 @@
+version: '3.8'
+
+services:
+  web:
+    build: .
+    container_name: growthforge_web
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_ENV=production
+      - SECRET_KEY=change_this_to_a_production_random_secret_32bytes
+      - JWT_SECRET_KEY=change_this_to_a_production_jwt_secret_32bytes
+      - DATABASE_URL=postgresql://growthforge:forge_secure_pass@db:5432/growthforge
+      - REDIS_URL=redis://redis:6379/0
+      - CORS_ORIGINS=*
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    volumes:
+      - uploads_data:/app/app/static/uploads
+
+  db:
+    image: postgres:16-alpine
+    container_name: growthforge_db
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: growthforge
+      POSTGRES_PASSWORD: forge_secure_pass
+      POSTGRES_DB: growthforge
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U growthforge -d growthforge"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: growthforge_redis
+    restart: unless-stopped
+    volumes:
+      - redis_data:/data
+
+volumes:
+  postgres_data:
+  redis_data:
+  uploads_data:

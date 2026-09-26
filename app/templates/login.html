@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}Sign In - GrowthForge{% endblock %}
+
+{% block content %}
+<div class="auth-viewport">
+    <div class="auth-card">
+        <div class="auth-brand">
+            <div class="brand-logo">
+                <i class="fa-solid fa-shield-virus"></i>
+            </div>
+            <h2>GrowthForge</h2>
+            <p>Forge your daily habits and achieve personal mastery.</p>
+        </div>
+
+        <form id="login-form" method="POST" action="/login" class="auth-form">
+            <div class="form-group">
+                <label for="username">Username or Email</label>
+                <div class="input-with-icon">
+                    <i class="fa-solid fa-user"></i>
+                    <input type="text" id="username" name="username" placeholder="Enter your username" required autofocus autocomplete="username">
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="password">Password</label>
+                <div class="input-with-icon">
+                    <i class="fa-solid fa-lock"></i>
+                    <input type="password" id="password" name="password" placeholder="Enter your password" required autocomplete="current-password">
+                </div>
+            </div>
+
+            <button type="submit" class="btn-primary w-100 auth-submit-btn">
+                <span>Sign In</span>
+                <i class="fa-solid fa-arrow-right"></i>
+            </button>
+        </form>
+
+        <div class="auth-footer">
+            <p>Don't have an account yet? <a href="/register">Create Account</a></p>
+            <div class="legal-mini-links">
+                <a href="/privacy-policy">Privacy Policy</a> &bull; <a href="/terms">Terms</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+    // Intercept form submission to also retrieve JWT token for mobile app client
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+        const username = document.getElementById('username').value.trim();
+        const password = document.getElementById('password').value;
+        
+        try {
+            const res = await fetch('/api/v1/auth/login', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ username, password })
+            });
+            const data = await res.json();
+            if (data.success && data.access_token) {
+                localStorage.setItem('gf_access_token', data.access_token);
+                localStorage.setItem('gf_refresh_token', data.refresh_token);
+                localStorage.setItem('gf_user', JSON.stringify(data.user));
+            }
+        } catch (err) {
+            console.log('Background token sync error:', err);
+        }
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,135 @@
+from flask import Blueprint, request, jsonify
+from app.extensions import db, dual_auth_required
+from app.models.skill import SkillCategory, SkillModule, SkillLog
+
+skills_bp = Blueprint('api_skills', __name__, url_prefix='/api/v1/skills')
+
+@skills_bp.route('', methods=['GET'])
+@dual_auth_required
+def get_skills():
+    user = request.auth_user
+    categories = SkillCategory.query.filter_by(user_id=user.id).order_by(SkillCategory.created_at.asc()).all()
+    return jsonify({
+        'success': True,
+        'categories': [c.to_dict() for c in categories]
+    })
+
+@skills_bp.route('/categories', methods=['POST'])
+@dual_auth_required
+def create_category():
+    user = request.auth_user
+    data = request.get_json(silent=True) or request.form
+    name = (data.get('name') or '').strip()
+    
+    if not name:
+        return jsonify({'success': False, 'error': 'Category name is required.'}), 400
+        
+    color_theme = (data.get('color_theme') or 'cyan').strip().lower()
+    icon = (data.get('icon') or 'fa-star').strip()
+    
+    category = SkillCategory(
+        user_id=user.id,
+        name=name,
+        color_theme=color_theme,
+        icon=icon
+    )
+    db.session.add(category)
+    db.session.commit()
+    
+    return jsonify({
+        'success': True,
+        'message': 'Skill category created.',
+        'category': category.to_dict()
+    }), 201
+
+@skills_bp.route('/categories/<int:cat_id>', methods=['DELETE'])
+@dual_auth_required
+def delete_category(cat_id):
+    user = request.auth_user
+    category = SkillCategory.query.filter_by(id=cat_id, user_id=user.id).first_or_404()
+    db.session.delete(category)
+    db.session.commit()
+    return jsonify({'success': True, 'message': 'Category deleted.'})
+
+@skills_bp.route('/modules', methods=['POST'])
+@dual_auth_required
+def create_module():
+    user = request.auth_user
+    data = request.get_json(silent=True) or request.form
+    title = (data.get('title') or '').strip()
+    category_id = data.get('category_id')
+    
+    if not title or not category_id:
+        return jsonify({'success': False, 'error': 'Title and category_id are required.'}), 400
+        
+    category = SkillCategory.query.filter_by(id=category_id, user_id=user.id).first()
+    if not category:
+        return jsonify({'success': False, 'error': 'Category not found.'}), 404
+        
+    module = SkillModule(category_id=category.id, title=title)
+    db.session.add(module)
+    db.session.commit()
+    
+    return jsonify({
+        'success': True,
+        'message': 'Module created.',
+        'module': module.to_dict()
+    }), 201
+
+@skills_bp.route('/modules/<int:mod_id>', methods=['DELETE'])
+@dual_auth_required
+def delete_module(mod_id):
+    user = request.auth_user
+    module = SkillModule.query.join(SkillCategory).filter(
+        SkillModule.id == mod_id,
+        SkillCategory.user_id == user.id
+    ).first_or_404()
+    
+    db.session.delete(module)
+    db.session.commit()
+    return jsonify({'success': True, 'message': 'Module deleted.'})
+
+@skills_bp.route('/logs', methods=['POST'])
+@dual_auth_required
+def create_log():
+    user = request.auth_user
+    data = request.get_json(silent=True) or request.form
+    name = (data.get('name') or '').strip()
+    metric = (data.get('metric') or '').strip()
+    module_id = data.get('module_id')
+    
+    if not name or not metric or not module_id:
+        return jsonify({'success': False, 'error': 'Name, metric, and module_id are required.'}), 400
+        
+    module = SkillModule.query.join(SkillCategory).filter(
+        SkillModule.id == module_id,
+        SkillCategory.user_id == user.id
+    ).first()
+    if not module:
+        return jsonify({'success': False, 'error': 'Module not found.'}), 404
+        
+    log = SkillLog(module_id=module.id, name=name, metric=metric)
+    db.session.add(log)
+    user.add_xp(10)  # +10 XP for logging progress
+    db.session.commit()
+    
+    return jsonify({
+        'success': True,
+        'message': 'Skill log added.',
+        'log': log.to_dict(),
+        'user_xp': user.xp_points,
+        'user_level': user.level
+    }), 201
+
+@skills_bp.route('/logs/<int:log_id>', methods=['DELETE'])
+@dual_auth_required
+def delete_log(log_id):
+    user = request.auth_user
+    log = SkillLog.query.join(SkillModule).join(SkillCategory).filter(
+        SkillLog.id == log_id,
+        SkillCategory.user_id == user.id
+    ).first_or_404()
+    
+    db.session.delete(log)
+    db.session.commit()
+    return jsonify({'success': True, 'message': 'Skill log deleted.'})

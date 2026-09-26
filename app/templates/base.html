@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>{% block title %}GrowthForge - Habit & Skill Tracker{% endblock %}</title>
+    
+    <!-- PWA & Android Meta Tags -->
+    <meta name="theme-color" content="#080c14">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="GrowthForge">
+    <meta name="description" content="Level up your habits, skills, and daily achievements with GrowthForge.">
+    <link rel="manifest" href="{{ url_for('static', filename='manifest.json') }}">
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='icons/icon.svg') }}">
+    <link rel="apple-touch-icon" href="{{ url_for('static', filename='icons/icon-192.png') }}">
+
+    <!-- Google Fonts & FontAwesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    
+    <!-- Canvas Confetti for Celebrations -->
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
+    
+    <!-- App Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/app.css') }}">
+    {% block extra_head %}{% endblock %}
+</head>
+<body class="dark-theme">
+    <!-- Offline Connectivity Notice Banner -->
+    <div id="offline-banner" class="offline-banner hidden">
+        <i class="fa-solid fa-wifi-slash"></i>
+        <span>Offline Mode Active - Cached records available</span>
+    </div>
+
+    <!-- Flash Messages Container -->
+    <div class="toast-container" id="toast-container">
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="toast toast-{{ category }}">
+                        <i class="fa-solid {% if category == 'error' %}fa-circle-exclamation{% elif category == 'success' %}fa-circle-check{% else %}fa-circle-info{% endif %}"></i>
+                        <span>{{ message }}</span>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+    </div>
+
+    <!-- Main View Content -->
+    <main class="app-main">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- App Scripts -->
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    <script>
+        // Register Service Worker for Offline PWA Support
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('/static/js/sw.js')
+                    .then(reg => console.log('GrowthForge Service Worker active:', reg.scope))
+                    .catch(err => console.log('Service Worker registration skipped:', err));
+            });
+        }
+    </script>
+    {% block extra_scripts %}{% endblock %}
+</body>
+</html>
