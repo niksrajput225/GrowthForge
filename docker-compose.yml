@@ -8,12 +8,12 @@ services:
     ports:
       - "5000:5000"
     environment:
-      - FLASK_ENV=production
-      - SECRET_KEY=change_this_to_a_production_random_secret_32bytes
-      - JWT_SECRET_KEY=change_this_to_a_production_jwt_secret_32bytes
-      - DATABASE_URL=postgresql://growthforge:forge_secure_pass@db:5432/growthforge
+      - FLASK_ENV=${FLASK_ENV:-production}
+      - SECRET_KEY=${SECRET_KEY}
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY}
+      - DATABASE_URL=postgresql://${POSTGRES_USER:-growthforge}:${POSTGRES_PASSWORD:-forge_secure_pass}@db:5432/${POSTGRES_DB:-growthforge}
       - REDIS_URL=redis://redis:6379/0
-      - CORS_ORIGINS=*
+      - CORS_ORIGINS=${CORS_ORIGINS:-*}
     depends_on:
       db:
         condition: service_healthy
@@ -27,9 +27,9 @@ services:
     container_name: growthforge_db
     restart: unless-stopped
     environment:
-      POSTGRES_USER: growthforge
-      POSTGRES_PASSWORD: forge_secure_pass
-      POSTGRES_DB: growthforge
+      POSTGRES_USER: ${POSTGRES_USER:-growthforge}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-forge_secure_pass}
+      POSTGRES_DB: ${POSTGRES_DB:-growthforge}
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:

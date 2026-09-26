@@ -1,10 +1,58 @@
-# Python
+# ==============================================================================
+# GrowthForge Production .gitignore
+# Prevents leaking sensitive keys, databases, user uploads, and local builds
+# ==============================================================================
+
+# --- Secrets & Environment Variables ---
+.env
+.env.*
+*.env
+!.env.example
+
+# --- User Uploads & Media (Avatars, attachments) ---
+app/static/uploads/*
+!app/static/uploads/.gitkeep
+
+# --- Databases & Local Storage ---
+instance/
+*.db
+*.db-journal
+*.sqlite
+*.sqlite3
+
+# --- Android Keystores & Signing Keys (CRITICAL: NEVER COMMIT) ---
+*.jks
+*.keystore
+*.p12
+*.p8
+*.key
+*.pem
+*.cer
+*.der
+google-services.json
+
+# --- Android Local Build & Tooling ---
+local.properties
+android/.gradle/
+android/build/
+android/app/build/
+android/captures/
+.externalNativeBuild/
+.cxx/
+*.apk
+*.aab
+
+# --- Python Environment & Bytecode ---
 __pycache__/
 *.py[cod]
 *$py.class
 *.so
 .Python
 env/
+venv/
+ENV/
+env.bak/
+venv.bak/
 build/
 develop-eggs/
 dist/
@@ -20,32 +68,37 @@ wheels/
 *.egg-info/
 .installed.cfg
 *.egg
+
+# --- Pytest & Test Coverage ---
 .pytest_cache/
 .coverage
+.coverage.*
 htmlcov/
+nosetests.xml
+coverage.xml
+*.cover
 
-# Flask & SQLite
-instance/
-*.db
-*.sqlite3
-
-# Node & Capacitor
+# --- Node & Web Dependencies ---
 node_modules/
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
 
-# Android build outputs
-android/app/build/
-android/build/
-android/.gradle/
-*.apk
-*.aab
-*.jks
-*.keystore
+# --- Operating System & Editor Files ---
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+Desktop.ini
+$RECYCLE.BIN/
 
-# Environment & IDE
-.env
+# --- IDE Configs ---
 .idea/
 .vscode/
 *.swp
+*.swo
+*~

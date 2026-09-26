@@ -57,7 +57,7 @@ In Android Studio:
 
 ---
 
-## 3. Creating a Release Signing Keystore
+## 3. Creating a Release Signing Keystore & GitHub Secrets Security
 
 To sign your `.aab` for production, generate a digital signature keystore:
 
@@ -66,7 +66,22 @@ keytool -genkey -v -keystore growthforge-release-key.jks -keyalg RSA -keysize 20
 ```
 
 > [!CAUTION]
-> **Backup your Keystore**: Keep `growthforge-release-key.jks` and your password in a safe, backed-up location. If lost, you cannot update your app on Google Play without resetting Play App Signing!
+> **CRITICAL SECURITY RULES**:
+> 1. **NEVER COMMIT KEYSTORES TO GITHUB**: Your `.jks` and `.keystore` files are explicitly blocked by `.gitignore`. Never use `git add -f` to force-commit them. If committed to a public repository, anyone can impersonate your application.
+> 2. **Backup your Keystore**: Keep `growthforge-release-key.jks` and your password in an encrypted, backed-up vault (like 1Password or Bitwarden).
+> 3. **Using Keystore in GitHub Actions**:
+>    - Convert your local `.jks` file to a Base64 string:
+>      ```powershell
+>      # In PowerShell:
+>      [Convert]::ToBase64String([IO.File]::ReadAllBytes("growthforge-release-key.jks")) | Set-Clipboard
+>      ```
+>    - In your GitHub Repository, go to: **Settings** -> **Secrets and variables** -> **Actions**.
+>    - Add the following repository secrets:
+>      - `RELEASE_KEYSTORE_BASE64` (the base64 string from your clipboard)
+>      - `KEYSTORE_PASSWORD` (your keystore password)
+>      - `KEY_ALIAS` (e.g. `growthforge`)
+>      - `KEY_PASSWORD` (your key password)
+>    - This keeps your signing keys 100% secret and safe while allowing GitHub Actions to compile signed bundles in the cloud.
 
 ---
 
