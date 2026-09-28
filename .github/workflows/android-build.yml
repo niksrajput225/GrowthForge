@@ -1,11 +1,8 @@
-name: Build Android APK and Google Play Bundle (.aab)
+name: Build Android APK and AAB
 
 on:
   push:
-    branches: [ main, master ]
-  pull_request:
-    branches: [ main, master ]
-  workflow_dispatch:
+    branches: [ main ]
 
 jobs:
   build-android:
@@ -24,52 +21,54 @@ jobs:
       - name: Set up Android SDK
         uses: android-actions/setup-android@v3
 
+      - name: Install SDK Components
+        run: |
+          sdkmanager "platform-tools" "platforms;android-33" "build-tools;33.0.2"
+
+      - name: Cache Gradle
+        uses: actions/cache@v4
+        with:
+          path: |
+            ~/.gradle/caches
+            ~/.gradle/wrapper
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
+
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
           node-version: 20
-          cache: 'npm'
 
       - name: Install Node Dependencies
-        run: |
-          npm install
+        run: npm install
+
+      - name: Build Web Assets
+        run: npm run build
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.11'
-          cache: 'pip'
 
-      - name: Install Python Dependencies & Generate Assets
+      - name: Generate Assets
         run: |
           pip install Pillow
           python scripts/generate_icons.py
 
-      - name: Grant Execute Permission for Gradle Wrapper
+      - name: Grant Gradle Permission
+        run: chmod +x android/gradlew
+
+      - name: Build Debug APK
         run: |
           cd android
-          if [ -f gradlew ]; then chmod +x gradlew; fi
+          ./gradlew assembleDebug --stacktrace
 
-      - name: Build Debug APK (For direct phone testing)
+      - name: Build AAB (optional)
         run: |
           cd android
-          gradle assembleDebug --stacktrace || ./gradlew assembleDebug --stacktrace
+          ./gradlew bundleDebug --stacktrace
 
-      - name: Build Android App Bundle (.aab for Google Play Store)
-        run: |
-          cd android
-          gradle bundleRelease --stacktrace || ./gradlew bundleRelease --stacktrace
-
-      - name: Upload Debug APK Artifact
+      - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
-          name: growthforge-debug-apk
+          name: debug-apk
           path: android/app/build/outputs/apk/debug/app-debug.apk
-          retention-days: 14
-
-      - name: Upload Google Play Release Bundle (.aab)
-        uses: actions/upload-artifact@v4
-        with:
-          name: growthforge-playstore-aab
-          path: android/app/build/outputs/bundle/release/app-release.aab
-          retention-days: 30
