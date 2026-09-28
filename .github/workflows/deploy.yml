@@ -8,6 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    environment: EC2_HOST   # ✅ IMPORTANT
 
     steps:
       - name: Checkout code
