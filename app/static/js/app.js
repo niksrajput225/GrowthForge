@@ -578,8 +578,18 @@ function initFormHandlers() {
     if (moduleForm) {
         moduleForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const category_id = document.getElementById('module-category-id').value;
+            const rawCatId = document.getElementById('module-category-id').value;
+            const category_id = parseInt(rawCatId, 10);
             const title = document.getElementById('module-input-title').value.trim();
+            
+            if (!title) {
+                showToast('Module title is required.', 'error');
+                return;
+            }
+            if (isNaN(category_id)) {
+                showToast('Invalid category selected.', 'error');
+                return;
+            }
             
             const res = await apiRequest('/api/v1/skills/modules', {
                 method: 'POST',
@@ -589,6 +599,9 @@ function initFormHandlers() {
                 closeModal('module-modal');
                 moduleForm.reset();
                 loadDashboardData();
+                showToast('Module created successfully!', 'success');
+            } else {
+                showToast(res.error || 'Failed to create module.', 'error');
             }
         });
     }
@@ -598,9 +611,19 @@ function initFormHandlers() {
     if (logForm) {
         logForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const module_id = document.getElementById('log-module-id').value;
+            const rawModId = document.getElementById('log-module-id').value;
+            const module_id = parseInt(rawModId, 10);
             const name = document.getElementById('log-input-name').value.trim();
             const metric = document.getElementById('log-input-metric').value.trim();
+            
+            if (!name || !metric) {
+                showToast('Name and metric are required.', 'error');
+                return;
+            }
+            if (isNaN(module_id)) {
+                showToast('Invalid module selected.', 'error');
+                return;
+            }
             
             const res = await apiRequest('/api/v1/skills/logs', {
                 method: 'POST',
@@ -611,6 +634,8 @@ function initFormHandlers() {
                 logForm.reset();
                 loadDashboardData();
                 showToast('+10 XP Logged!', 'success');
+            } else {
+                showToast(res.error || 'Failed to log metric.', 'error');
             }
         });
     }
