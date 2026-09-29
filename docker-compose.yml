@@ -45,16 +45,6 @@ services:
     volumes:
       - redis_data:/data
 
-  nginx:   # ✅ NOW CORRECT
-    image: nginx:alpine
-    container_name: growthforge_nginx
-    restart: unless-stopped
-    ports:
-      - "80:80"
-    volumes:
-      - ./nginx.conf:/etc/nginx/nginx.conf:ro
-    depends_on:
-      - web
 
 volumes:
   postgres_data:
